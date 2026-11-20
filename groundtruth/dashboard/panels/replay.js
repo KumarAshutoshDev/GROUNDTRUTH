@@ -10,32 +10,38 @@ export function createReplayPanel({ onScrub = null, onLive = null } = {}) {
   panel.id = "replay-panel";
 
   panel.innerHTML = `
-    <div class="gt-panel-header" style="padding: var(--gt-space-3) var(--gt-space-4);">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <h3 style="font-size: 14px;">Historical Replay Scrubber</h3>
-        <span class="mono" id="replay-status-badge" style="
-          font-size: 10px;
-          padding: 2px 8px;
-          border-radius: var(--gt-radius-pill);
-          background: var(--gt-lime);
-          color: var(--gt-midnight);
-          font-weight: 700;
-        ">LIVE</span>
+    <div class="gt-panel-header" style="padding: var(--gt-space-3) var(--gt-space-4); flex-direction: column; align-items: flex-start; gap: 4px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h3 style="font-size: 14px; font-weight: 600;">Historical Replay Scrubber</h3>
+          <span class="mono" id="replay-status-badge" style="
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: var(--gt-radius-pill);
+            background: var(--gt-lime);
+            color: var(--gt-midnight);
+            font-weight: 700;
+          ">LIVE</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="mono text-muted" style="font-size: 11px;">
+            Event <span id="current-seq-display" style="color: var(--gt-text); font-weight: 700;">0</span> / <span id="max-seq-display">0</span>
+          </span>
+          <button id="btn-return-live" style="
+            background: var(--gt-surface-1);
+            border: 1px solid var(--gt-cobalt-soft);
+            color: var(--gt-cobalt-soft);
+            border-radius: var(--gt-radius-pill);
+            padding: 3px 12px;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+          ">Jump to Live ⚡</button>
+        </div>
       </div>
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <span class="mono text-muted" style="font-size: 11px;">
-          Event <span id="current-seq-display" style="color: var(--gt-text); font-weight: 600;">0</span> / <span id="max-seq-display">0</span>
-        </span>
-        <button id="btn-return-live" style="
-          background: transparent;
-          border: 1px solid var(--gt-cobalt-soft);
-          color: var(--gt-cobalt-soft);
-          border-radius: var(--gt-radius-pill);
-          padding: 2px 10px;
-          font-size: 10px;
-          font-weight: 600;
-          cursor: pointer;
-        ">Jump to Live</button>
+      <div style="font-size: 11px; color: var(--gt-text-muted);">
+        Drag scrubber or use ← / → to inspect state reconstruction at sequence N
       </div>
     </div>
     <div class="gt-panel-body" style="padding: var(--gt-space-3) var(--gt-space-4); display: flex; flex-direction: column; gap: 8px;">
@@ -111,11 +117,17 @@ export function createReplayPanel({ onScrub = null, onLive = null } = {}) {
       liveBadge.textContent = "LIVE";
       liveBadge.style.background = "var(--gt-lime)";
       liveBadge.style.color = "var(--gt-midnight)";
+      btnLive.style.borderColor = "var(--gt-cobalt-soft)";
+      btnLive.style.color = "var(--gt-cobalt-soft)";
+      btnLive.style.boxShadow = "none";
       if (onLive) onLive();
     } else {
       liveBadge.textContent = "HISTORICAL";
       liveBadge.style.background = "var(--gt-amber)";
       liveBadge.style.color = "var(--gt-midnight)";
+      btnLive.style.borderColor = "var(--gt-lime)";
+      btnLive.style.color = "var(--gt-lime)";
+      btnLive.style.boxShadow = "var(--gt-glow-lime)";
       if (onScrub) onScrub(seq);
     }
   }

@@ -12,9 +12,14 @@ export function createFactListPanel() {
 
   panel.innerHTML = `
     <div class="gt-panel-header" style="flex-wrap: wrap; gap: 8px;">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <h2>Admitted Facts</h2>
-        <span class="mono text-muted" id="fact-count" style="font-size: 11px;">(0)</span>
+      <div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h2>Admitted Facts</h2>
+          <span class="mono text-muted" id="fact-count" style="font-size: 11px;">(0)</span>
+        </div>
+        <div style="font-size: 11px; color: var(--gt-text-muted); margin-top: 2px;">
+          Verified shared context available to agents
+        </div>
       </div>
       <!-- Status Filter Tabs -->
       <div class="gt-filter-tabs" id="fact-filter-tabs" style="

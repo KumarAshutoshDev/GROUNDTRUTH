@@ -4,7 +4,29 @@
  * Enforces high-visibility transition on signal flip from AUTO_FIX to ESCALATE.
  */
 
+export function getFriendlyCaseName(c) {
+  const trigger = c.trigger || {};
+  const fid = trigger.fixture_id || trigger.title || "";
+  const cid = c.case_id || "";
+  if (fid.includes("auth_refactor") || cid.includes("auth")) {
+    return "Incident 1: Auth Refactor NPE";
+  } else if (fid.includes("dep_version") || fid.includes("mismatch") || cid.includes("dep")) {
+    return "Incident 2: Dependency Mismatch (urllib3)";
+  } else if (fid.includes("oom") || fid.includes("pod") || cid.includes("oom")) {
+    return "Incident 3: Pod Crash (OOMKilled)";
+  } else if (fid.includes("syntax") || fid.includes("config") || cid.includes("config")) {
+    return "Incident 4: YAML Syntax Error";
+  } else if (fid.includes("deadlock") || fid.includes("migration") || cid.includes("deadlock")) {
+    return "Incident 5: DB Migration Lock Timeout";
+  }
+  const shortId = cid.length > 10 ? cid.slice(0, 8) + "…" : cid;
+  return `Case ${shortId}`;
+}
+
 export function createTopBar({ onCaseSwitch = null } = {}) {
+  const container = document.createElement("div");
+  container.id = "top-bar-wrapper";
+
   const header = document.createElement("header");
   header.className = "top-bar";
   header.id = "dashboard-top-bar";
@@ -12,12 +34,15 @@ export function createTopBar({ onCaseSwitch = null } = {}) {
   header.innerHTML = `
     <!-- Left: Brand and Case Switcher -->
     <div style="display: flex; align-items: center; gap: 16px;">
-      <div style="display: flex; align-items: baseline; gap: 4px;">
-        <span style="font-size: 18px; font-weight: 700; letter-spacing: -0.02em; color: var(--gt-text);">GroundTruth</span>
-        <span class="accent-lime" style="font-size: 16px;">context</span>
+      <div style="display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: baseline; gap: 4px;">
+          <span style="font-size: 18px; font-weight: 700; letter-spacing: -0.02em; color: var(--gt-text);">GroundTruth</span>
+          <span class="accent-lime" style="font-size: 16px;">governed context</span>
+        </div>
+        <span style="font-size: 10px; color: var(--gt-text-muted); letter-spacing: 0.02em;">Autonomous Multi-Agent Investigation Layer</span>
       </div>
 
-      <div style="height: 18px; width: 1px; background: var(--gt-line);"></div>
+      <div style="height: 24px; width: 1px; background: var(--gt-line);"></div>
 
       <!-- Case Switcher & State Dot -->
       <div style="display: flex; align-items: center; gap: 8px;">
@@ -29,28 +54,47 @@ export function createTopBar({ onCaseSwitch = null } = {}) {
           display: inline-block;
           box-shadow: 0 0 8px rgba(91, 141, 239, 0.4);
         "></span>
+        <label for="case-selector" style="font-size: 11px; color: var(--gt-text-muted); font-weight: 600;">Scenario:</label>
         <select id="case-selector" class="mono" style="
           background: var(--gt-surface-2);
           color: var(--gt-text);
           border: 1px solid var(--gt-line);
           border-radius: var(--gt-radius-pill);
-          padding: 4px 12px;
+          padding: 5px 14px;
           font-size: 12px;
           cursor: pointer;
           outline: none;
+          max-width: 320px;
         ">
-          <option value="">Loading cases…</option>
+          <option value="">Loading scenarios…</option>
         </select>
       </div>
     </div>
 
-    <!-- Right: Decision Signal Banner & Pill -->
-    <div style="display: flex; align-items: center; gap: 12px;" id="decision-banner-container">
+    <!-- Right: How It Works & Decision Signal Banner -->
+    <div style="display: flex; align-items: center; gap: 16px;" id="decision-banner-container">
+      <button id="btn-toggle-guide" style="
+        background: var(--gt-surface-2);
+        border: 1px solid var(--gt-line);
+        color: var(--gt-text-muted);
+        border-radius: var(--gt-radius-pill);
+        padding: 5px 12px;
+        font-size: 11px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+      " title="Toggle Architecture Guide">
+        <span>💡</span> How It Works
+      </button>
+
       <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
         <span style="font-size: 9px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gt-text-muted);">
           Autonomous Routing
         </span>
-        <div id="decision-missing-checks" class="mono text-muted" style="font-size: 10px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
+        <div id="decision-missing-checks" class="mono text-muted" style="font-size: 10px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
       </div>
       <div id="decision-pill" class="gt-decision-pill" style="
         display: inline-flex;
@@ -73,12 +117,55 @@ export function createTopBar({ onCaseSwitch = null } = {}) {
     </div>
   `;
 
+  // Guide Banner
+  const guideBanner = document.createElement("div");
+  guideBanner.id = "quick-guide-banner";
+  guideBanner.style.cssText = `
+    display: none;
+    background: var(--gt-surface-2);
+    border-bottom: 1px solid var(--gt-cobalt-soft);
+    padding: 14px 24px;
+    animation: fadeIn 0.2s ease;
+  `;
+  guideBanner.innerHTML = `
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1400px; margin: auto;">
+      <div style="background: rgba(255,255,255,0.03); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--gt-cobalt-soft);">
+        <div style="font-weight: 700; color: var(--gt-text); font-size: 12px; margin-bottom: 4px;">1. Specialist Agents</div>
+        <div style="font-size: 11px; color: var(--gt-text-muted); line-height: 1.4;">LogAgent, RepoAgent, and IntelAgent query tools under strict role contracts.</div>
+      </div>
+      <div style="background: rgba(255,255,255,0.03); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--gt-lime);">
+        <div style="font-weight: 700; color: var(--gt-lime); font-size: 12px; margin-bottom: 4px;">2. Write Gate & Verifier</div>
+        <div style="font-size: 11px; color: var(--gt-text-muted); line-height: 1.4;">Every claim is verified against evidence. Speculative hallucinations are quarantined.</div>
+      </div>
+      <div style="background: rgba(255,255,255,0.03); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--gt-coral);">
+        <div style="font-weight: 700; color: var(--gt-coral); font-size: 12px; margin-bottom: 4px;">3. Causality DAG & Taint</div>
+        <div style="font-size: 11px; color: var(--gt-text-muted); line-height: 1.4;">Facts are cryptographically chained. If a root fact is retracted, trust decays automatically.</div>
+      </div>
+      <div style="background: rgba(255,255,255,0.03); padding: 10px 14px; border-radius: 8px; border-left: 3px solid var(--gt-amber);">
+        <div style="font-weight: 700; color: var(--gt-amber); font-size: 12px; margin-bottom: 4px;">4. Negative Knowledge</div>
+        <div style="font-size: 11px; color: var(--gt-text-muted); line-height: 1.4;">Remembers verified dead-ends to suppress duplicate calls, saving 75%+ tokens.</div>
+      </div>
+    </div>
+  `;
+
+  container.appendChild(header);
+  container.appendChild(guideBanner);
+
+  // Toggle guide
+  const btnGuide = header.querySelector("#btn-toggle-guide");
+  btnGuide.addEventListener("click", () => {
+    const isHidden = guideBanner.style.display === "none";
+    guideBanner.style.display = isHidden ? "block" : "none";
+    btnGuide.style.background = isHidden ? "var(--gt-cobalt)" : "var(--gt-surface-2)";
+    btnGuide.style.color = isHidden ? "var(--gt-text)" : "var(--gt-text-muted)";
+  });
+
   if (onCaseSwitch) {
     const selector = header.querySelector("#case-selector");
     selector.addEventListener("change", (e) => onCaseSwitch(e.target.value));
   }
 
-  return header;
+  return container;
 }
 
 export function updateDecisionPill(decisionData, container = document) {

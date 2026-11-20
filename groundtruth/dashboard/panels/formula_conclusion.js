@@ -77,9 +77,14 @@ export function createConclusionPanel() {
   panel.id = "conclusion-panel";
 
   panel.innerHTML = `
-    <div class="gt-panel-header">
-      <h2>Attributable Conclusion</h2>
-      <span class="mono text-muted" id="conclusion-fact-id-label" style="font-size: 10px;">None</span>
+    <div class="gt-panel-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+        <h2>Attributable Conclusion</h2>
+        <span class="mono text-muted" id="conclusion-fact-id-label" style="font-size: 10px;">None</span>
+      </div>
+      <div style="font-size: 11px; color: var(--gt-text-muted);">
+        Deterministic root cause with cryptographic provenance chain
+      </div>
     </div>
     <div class="gt-panel-body" id="conclusion-body" style="display: flex; flex-direction: column; gap: var(--gt-space-3);">
       <div class="gt-empty-state" style="color: var(--gt-text-muted); font-size: 12px; text-align: center; padding: 24px;">

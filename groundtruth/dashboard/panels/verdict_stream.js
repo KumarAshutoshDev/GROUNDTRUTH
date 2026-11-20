@@ -13,15 +13,21 @@ export function createVerdictStreamPanel() {
   panel.id = "verdict-stream-panel";
 
   panel.innerHTML = `
-    <div class="gt-panel-header">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <h2>Gate Verdict Stream</h2>
-        <span class="mono text-muted" id="verdict-count" style="font-size: 11px;">(0)</span>
+    <div class="gt-panel-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h2>Gate Verdict Stream</h2>
+          <span class="mono text-muted" id="verdict-count" style="font-size: 11px;">(0)</span>
+        </div>
+        <span class="mono" style="font-size: 10px; color: var(--gt-lime); display: flex; align-items: center; gap: 5px;">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--gt-lime); display: inline-block;"></span>
+          LIVE SSE
+        </span>
       </div>
-      <span class="mono" style="font-size: 10px; color: var(--gt-lime); display: flex; align-items: center; gap: 5px;">
-        <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--gt-lime); display: inline-block;"></span>
-        LIVE SSE
-      </span>
+      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; font-size: 11px; color: var(--gt-text-muted);">
+        <span>Write Gate admissions & quarantine verdicts</span>
+        <span style="font-size: 10px; color: var(--gt-cobalt-soft);">🛡️ Falsification Active</span>
+      </div>
     </div>
     <div class="gt-panel-body" id="verdict-stream-list" style="
       display: flex;

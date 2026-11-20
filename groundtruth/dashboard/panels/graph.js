@@ -10,20 +10,29 @@ export function createGraphPanel() {
   panel.id = "graph-panel";
 
   panel.innerHTML = `
-    <div class="gt-panel-header">
-      <div style="display: flex; align-items: center; gap: 8px;">
-        <h2>Causality Graph</h2>
-        <span class="mono text-muted" id="graph-node-count" style="font-size: 11px;">(0 nodes)</span>
+    <div class="gt-panel-header" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h2>Causality Graph</h2>
+          <span class="mono text-muted" id="graph-node-count" style="font-size: 11px;">(0 nodes)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 14px; font-size: 10px;" class="mono text-muted">
+          <span style="display: flex; align-items: center; gap: 4px;">
+            <span style="width: 14px; height: 2.5px; background: var(--gt-cobalt); box-shadow: var(--gt-glow-cobalt); display: inline-block;"></span>
+            Weakest Link
+          </span>
+          <span style="display: flex; align-items: center; gap: 4px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--gt-coral); display: inline-block;"></span>
+            Tainted (0.00)
+          </span>
+          <span style="display: flex; align-items: center; gap: 4px;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--gt-amber); display: inline-block;"></span>
+            Quarantined
+          </span>
+        </div>
       </div>
-      <div style="display: flex; align-items: center; gap: 12px; font-size: 10px;" class="mono text-muted">
-        <span style="display: flex; align-items: center; gap: 4px;">
-          <span style="width: 12px; height: 2px; background: var(--gt-cobalt); box-shadow: var(--gt-glow-cobalt); display: inline-block;"></span>
-          Weakest Link
-        </span>
-        <span style="display: flex; align-items: center; gap: 4px;">
-          <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--gt-coral); display: inline-block;"></span>
-          Tainted
-        </span>
+      <div style="font-size: 11px; color: var(--gt-text-muted);">
+        Directed evidence chain • Drag scrubber below to time-travel through DAG evolution
       </div>
     </div>
     <div class="gt-panel-body" id="graph-container" style="
@@ -38,6 +47,18 @@ export function createGraphPanel() {
       <div class="gt-empty-state" style="color: var(--gt-text-muted); font-size: 12px; text-align: center; padding: 24px;">
         Awaiting causality graph data…
       </div>
+    </div>
+    <div id="graph-fact-inspector" style="
+      padding: 10px 16px;
+      background: var(--gt-surface-2);
+      border-top: 1px solid var(--gt-line);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--gt-text-muted);
+    ">
+      <span>💡 Click any node above to inspect provenance and evidence</span>
     </div>
   `;
 
@@ -185,14 +206,22 @@ export function renderGraph(graphData, container) {
 
     const fidShort = n.id.length > 14 ? n.id.slice(0, 6) + "…" + n.id.slice(-4) : n.id;
     const effTrust = (n.effective_trust !== undefined ? Number(n.effective_trust).toFixed(2) : "1.00");
+    const icons = {
+      log_anomaly: "📄",
+      commit_change: "📦",
+      negative_check: "🛡️",
+      dependency_bump: "⚠️",
+      cicd_root_cause: "🎯",
+    };
+    const icon = icons[n.type] || "•";
 
     nodesMarkup += `
-      <g class="gt-graph-node" id="node-${n.id}" data-node-id="${n.id}" transform="translate(${n.x}, ${n.y})">
+      <g class="gt-graph-node" id="node-${n.id}" data-node-id="${n.id}" transform="translate(${n.x}, ${n.y})" style="cursor: pointer;">
         <rect width="${nodeWidth}" height="${nodeHeight}" rx="12" ry="12"
               fill="${bgCol}" stroke="${borderCol}" stroke-width="1.5"
               class="gt-node-box" />
         <text x="12" y="22" font-size="11" font-weight="600" fill="var(--gt-text)" font-family="var(--gt-font-sans)">
-          ${n.type.length > 15 ? n.type.slice(0, 14) + '…' : n.type}
+          ${icon} ${n.type.length > 13 ? n.type.slice(0, 12) + '…' : n.type}
         </text>
         <text x="12" y="38" font-size="10" fill="var(--gt-text-muted)" font-family="var(--gt-font-mono)">
           ${fidShort}
@@ -226,6 +255,46 @@ export function renderGraph(graphData, container) {
       <g class="graph-nodes">${nodesMarkup}</g>
     </svg>
   `;
+
+  // Attach interactive node click listeners
+  container.querySelectorAll(".gt-graph-node").forEach((nodeEl) => {
+    nodeEl.addEventListener("click", () => {
+      const fid = nodeEl.getAttribute("data-node-id");
+      const n = nodeMap.get(fid);
+      if (!n) return;
+
+      const inspector = container.querySelector("#graph-fact-inspector") || document.getElementById("graph-fact-inspector");
+      if (inspector) {
+        const trustVal = Number(n.effective_trust || 0).toFixed(2);
+        inspector.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span style="font-weight: 700; color: var(--gt-text); font-size: 12px;">${n.type}</span>
+            <span class="mono" style="color: var(--gt-text-muted); font-size: 10px;">${n.id}</span>
+            <span class="mono" style="color: var(--gt-lime); background: rgba(212,255,36,0.12); padding: 1px 6px; border-radius: 999px; font-weight: 700;">Trust: ${trustVal}</span>
+            <span style="color: var(--gt-text); font-size: 11px;">${n.summary || ""}</span>
+          </div>
+          <button id="btn-highlight-fact" style="background: var(--gt-surface-1); border: 1px solid var(--gt-cobalt-soft); color: var(--gt-cobalt-soft); border-radius: 999px; padding: 3px 12px; font-size: 10px; cursor: pointer; font-weight: 600;">
+            Highlight Fact Card ↓
+          </button>
+        `;
+
+        const btnScroll = inspector.querySelector("#btn-highlight-fact");
+        if (btnScroll) {
+          btnScroll.addEventListener("click", () => {
+            const card = document.querySelector(`.gt-fact-card[data-fact-id="${fid}"]`);
+            if (card) {
+              card.scrollIntoView({ behavior: "smooth", block: "center" });
+              card.style.borderColor = "var(--gt-lime)";
+              card.style.boxShadow = "var(--gt-glow-lime)";
+              setTimeout(() => {
+                card.style.boxShadow = "none";
+              }, 2000);
+            }
+          });
+        }
+      }
+    });
+  });
 }
 
 /**

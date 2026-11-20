@@ -3,7 +3,7 @@
  * Zero npm build step. Vanilla JS SPA driven by REST APIs and live SSE stream.
  */
 
-import { createTopBar, updateDecisionPill, updateCaseStateDot } from "./panels/top_bar.js";
+import { createTopBar, updateDecisionPill, updateCaseStateDot, getFriendlyCaseName } from "./panels/top_bar.js";
 import { createVerdictStreamPanel, appendVerdictRow } from "./panels/verdict_stream.js";
 import { createFactListPanel, renderFactList } from "./panels/fact_list.js";
 import { createGraphPanel, renderGraph, animateTaintCascade } from "./panels/graph.js";
@@ -81,7 +81,10 @@ async function loadCaseList() {
     }
 
     selector.innerHTML = cases
-      .map((c) => `<option value="${c.case_id}">${c.case_id} (${c.state})</option>`)
+      .map((c) => {
+        const friendly = getFriendlyCaseName(c);
+        return `<option value="${c.case_id}">${friendly} (${c.state})</option>`;
+      })
       .join("");
 
     currentCaseId = cases[0].case_id;
