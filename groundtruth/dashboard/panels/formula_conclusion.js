@@ -117,27 +117,64 @@ export function updateConclusionPanel({ conclusionFact, lineageFacts = [], missi
   const rootCause = val.root_cause || JSON.stringify(val);
   const fixRec = val.fix_recommendation || "";
   const effTrust = Number(conclusionFact.effective_trust || 0).toFixed(2);
+  const status = (conclusionFact.status || "ACTIVE").toUpperCase();
+
+  const isTainted = status === "TAINTED" || Number(effTrust) === 0;
+  const isLowTrust = Number(effTrust) < 0.60;
+
+  let borderColor = "var(--gt-lime)";
+  let badgeColor = "var(--gt-lime)";
+  let cardTitle = "VALIDATED ROOT CAUSE";
+  let cardBg = "var(--gt-surface-2)";
+  let glowStyle = "var(--gt-glow-lime)";
+
+  if (isTainted) {
+    borderColor = "var(--gt-coral)";
+    badgeColor = "var(--gt-coral)";
+    cardTitle = "TAINTED CLAIM (TRUST COLLAPSED)";
+    cardBg = "repeating-linear-gradient(45deg, var(--gt-surface-2), var(--gt-surface-2) 10px, rgba(255, 42, 85, 0.06) 10px, rgba(255, 42, 85, 0.06) 20px)";
+    glowStyle = "0 0 16px rgba(255, 42, 85, 0.3)";
+  } else if (isLowTrust) {
+    borderColor = "var(--gt-amber)";
+    badgeColor = "var(--gt-amber)";
+    cardTitle = "UNVERIFIED CLAIM";
+    glowStyle = "0 0 16px rgba(255, 183, 3, 0.3)";
+  }
 
   body.innerHTML = `
     <!-- Conclusion Card -->
     <div style="
-      background: var(--gt-surface-2);
-      border: 1px solid var(--gt-lime);
+      background: ${cardBg};
+      border: 1px solid ${borderColor};
       border-radius: var(--gt-radius-card);
       padding: var(--gt-space-4);
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 8px;
+      box-shadow: ${glowStyle};
+      transition: all 0.3s ease;
     ">
-      <div style="display: flex; align-items: center; justify-content: space-between;">
-        <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: var(--gt-lime);">Root Cause</span>
-        <span class="mono" style="font-size: 12px; color: var(--gt-lime); font-weight: 600;">Trust: ${effTrust}</span>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+        <span style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: ${badgeColor}; display: flex; align-items: center; gap: 4px;">
+          ${isTainted ? '⚠️' : '🎯'} ${cardTitle}
+        </span>
+        <span class="mono" style="font-size: 12px; color: ${badgeColor}; font-weight: 700; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 999px;">
+          Trust: ${effTrust}
+        </span>
       </div>
+
       <div style="font-size: 14px; font-weight: 600; color: var(--gt-text); line-height: 1.4;">
         ${rootCause}
       </div>
+
+      ${isTainted ? `
+        <div style="font-size: 11px; color: var(--gt-coral); background: rgba(255, 42, 85, 0.1); border: 1px solid rgba(255, 42, 85, 0.25); border-radius: 6px; padding: 6px 10px; line-height: 1.4;">
+          🛡️ <strong>Taint Cascade (INV-9):</strong> An upstream premise was retracted. Trust automatically collapsed to 0.00 to block ungrounded automated fixes.
+        </div>
+      ` : ""}
+
       ${fixRec ? `
-        <div style="font-size: 12px; color: var(--gt-cobalt-soft); margin-top: 4px;">
+        <div style="font-size: 12px; color: var(--gt-cobalt-soft); margin-top: 2px;">
           <strong>Recommendation:</strong> ${fixRec}
         </div>
       ` : ""}
