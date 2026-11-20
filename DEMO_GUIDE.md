@@ -110,10 +110,10 @@ PYTHONPATH=. uvicorn groundtruth.api.routes:app --host 127.0.0.1 --port 8000 --r
 ### URLs Available:
 | Service | URL | Purpose |
 | :--- | :--- | :--- |
-| **Interactive Dashboard** | `http://127.0.0.1:8000/dashboard/` | Full multi-page web UI |
+| **Interactive Dashboard (Main UI)** | `http://127.0.0.1:8000/dashboard/` | Full multi-page web UI |
 | **Interactive Swagger API Docs** | `http://127.0.0.1:8000/docs` | OpenAPI documentation |
 | **Raw Cases REST Endpoint** | `http://127.0.0.1:8000/cases` | Active incident cases |
-| **Live SSE Stream** | `http://127.0.0.1:8000/cases/{id}/stream` | Server-Sent Events |
+| **Raw SSE Event Stream** | `http://127.0.0.1:8000/cases/<case_id>/stream` | Backend SSE event stream (replace `<case_id>` with an actual ID from `/cases`) |
 
 ---
 
