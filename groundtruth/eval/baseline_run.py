@@ -16,11 +16,18 @@ import argparse
 import hashlib
 import json
 import math
+import os
 import re
 import statistics
+import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any
+
+# Ensure repository root is on sys.path even when executed directly without PYTHONPATH
+_repo_root = str(Path(__file__).resolve().parents[2])
+if _repo_root not in sys.path:
+    sys.path.insert(0, _repo_root)
 
 from groundtruth.adapters.llm import LLMAdapter, get_default_adapter
 from groundtruth.core.utils import canonical_json

@@ -12,9 +12,16 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import statistics
+import sys
 from pathlib import Path
 from typing import Any
+
+# Ensure repository root is on sys.path even when executed directly without PYTHONPATH
+_repo_root = str(Path(__file__).resolve().parents[2])
+if _repo_root not in sys.path:
+    sys.path.insert(0, _repo_root)
 
 from fastapi.testclient import TestClient
 
