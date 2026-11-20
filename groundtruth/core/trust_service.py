@@ -119,13 +119,15 @@ def apply_decay_tick(
 ) -> list[Event]:
     """Apply time-based decay tick to volatile facts and emit TRUST_RECOMPUTED (TRUST-8)."""
     state = load_case_projection(conn, case_id)
-    # TRUST-8 & CASE-3: Ticks never run on a CLOSED case
-    if not state.case or state.case.state == "CLOSED":
+    # TRUST-8 & CASE-3: Ticks never run on a CLOSED case or case without domain pack
+    if not state.case or state.case.state == "CLOSED" or not state.case.domain_pack:
         return []
 
     pack_config = pack
     if pack_config is None:
         pack_dir = Path("groundtruth/packs") / state.case.domain_pack
+        if not pack_dir.exists():
+            return []
         pack_config = load_pack(pack_dir)
 
     active_now = now or (clock.now() if clock else SystemClock().now())

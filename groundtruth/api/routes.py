@@ -24,16 +24,18 @@ from groundtruth.core.utils import Clock
 # Default DB location (can be file or in-memory)
 DEFAULT_DB_PATH = Path("groundtruth.db")
 
-_shared_connection: sqlite3.Connection | None = None
-
 
 def get_db_connection() -> Generator[sqlite3.Connection, None, None]:
-    """Dependency provider for database connections."""
-    global _shared_connection
-    if _shared_connection is None:
-        _shared_connection = get_connection(DEFAULT_DB_PATH)
-        init_db(_shared_connection)
-    yield _shared_connection
+    """Dependency provider for database connections.
+
+    Yields a dedicated per-request connection to ensure thread safety
+    under concurrent ASGI requests (e.g., SSE streaming alongside dashboard fetches).
+    """
+    conn = get_connection(DEFAULT_DB_PATH)
+    try:
+        yield conn
+    finally:
+        conn.close()
 
 
 def create_app(
@@ -50,6 +52,11 @@ def create_app(
     if db_conn is not None:
         app.dependency_overrides[get_db] = lambda: db_conn
     else:
+        init_conn = get_connection(DEFAULT_DB_PATH)
+        try:
+            init_db(init_conn)
+        finally:
+            init_conn.close()
         app.dependency_overrides[get_db] = get_db_connection
 
     if clock is not None:
