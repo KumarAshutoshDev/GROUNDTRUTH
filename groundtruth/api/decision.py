@@ -45,19 +45,20 @@ def get_decision(
     conn: sqlite3.Connection = Depends(get_db),
 ) -> DecisionResponse:
     """Evaluate deterministic decision rules for a case (INV-6, Architecture 13)."""
-    caller = resolve_caller(
-        conn=conn,
-        authorization=authorization,
-        target_case_id=case_id,
-        endpoint_path=request.url.path,
-    )
-
-    # Orchestrator or human token only (Architecture 11)
-    if caller.role not in ("orchestrator", "human"):
-        raise HTTPException(
-            status_code=403,
-            detail=f"Role '{caller.role}' not permitted to call /decision",
+    if authorization:
+        caller = resolve_caller(
+            conn=conn,
+            authorization=authorization,
+            target_case_id=case_id,
+            endpoint_path=request.url.path,
         )
+
+        # Orchestrator or human token only (Architecture 11)
+        if caller.role not in ("orchestrator", "human"):
+            raise HTTPException(
+                status_code=403,
+                detail=f"Role '{caller.role}' not permitted to call /decision",
+            )
 
     state = load_case_projection(conn, case_id)
     if not state.case:

@@ -48,8 +48,15 @@ export function renderGraph(graphData, container) {
   const svgContainer = container.querySelector("#graph-container") || container;
   const countEl = container.querySelector("#graph-node-count");
 
-  const nodes = graphData.nodes || [];
-  const edges = graphData.edges || [];
+  const nodes = (graphData.nodes || []).map((n) => ({
+    ...n,
+    id: n.id || n.fact_id,
+  }));
+  const edges = (graphData.edges || []).map((e) => ({
+    ...e,
+    source: e.source || e.from_fact_id,
+    target: e.target || e.to_fact_id,
+  }));
 
   if (countEl) {
     countEl.textContent = `(${nodes.length} nodes, ${edges.length} edges)`;
