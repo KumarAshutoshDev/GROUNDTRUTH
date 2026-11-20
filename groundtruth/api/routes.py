@@ -4,7 +4,7 @@ import sqlite3
 from collections.abc import Generator
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 
 from groundtruth.api.actions import router as actions_router
 from groundtruth.api.cases import get_clock, get_db
@@ -88,6 +88,15 @@ def create_app(
         @app.get("/", include_in_schema=False)
         def index() -> FileResponse:
             return FileResponse(dashboard_dir / "index.html")
+
+    @app.middleware("http")
+    async def add_no_cache_headers(request: Request, call_next):  # type: ignore[no-untyped-def]
+        response = await call_next(request)
+        if request.url.path.startswith("/dashboard") or request.url.path == "/":
+            response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        return response
 
     return app
 

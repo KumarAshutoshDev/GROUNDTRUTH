@@ -9,12 +9,13 @@ Enforces:
 import sqlite3
 from typing import Any
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from groundtruth.api.auth import resolve_caller
 from groundtruth.api.cases import get_db
 from groundtruth.core.projector import load_case_projection
+from groundtruth.core.replay import replay_case
 from groundtruth.core.trust_service import apply_decay_tick
 from groundtruth.core.utils import canonical_json
 
@@ -69,6 +70,7 @@ def extract_fact_summary(f_val: Any, f_type: str) -> str:
 def get_case_graph(
     case_id: str,
     request: Request,
+    at: int | None = Query(default=None, ge=1),
     authorization: str | None = Header(default=None),
     conn: sqlite3.Connection = Depends(get_db),
 ) -> GraphResponse:
@@ -81,11 +83,14 @@ def get_case_graph(
             endpoint_path=request.url.path,
         )
 
-    # TRUST-8: Apply decay tick before /graph
-    apply_decay_tick(conn=conn, case_id=case_id)
+    if at is not None:
+        state = replay_case(conn, case_id, upto_seq=at)
+    else:
+        # TRUST-8: Apply decay tick before /graph
+        apply_decay_tick(conn=conn, case_id=case_id)
+        state = load_case_projection(conn, case_id)
 
-    state = load_case_projection(conn, case_id)
-    if not state.case:
+    if not state.case and not state.facts:
         cursor = conn.cursor()
         cursor.execute("SELECT 1 FROM events WHERE case_id = ? LIMIT 1", (case_id,))
         if not cursor.fetchone():

@@ -177,37 +177,11 @@ async function loadHistoricalState(seq) {
     // Update fact list with historical facts
     renderFactList(state.facts, document.getElementById("fact-list-panel"), packConfig);
 
-    // Update graph with historical facts
-    const gRes = await fetch(`/cases/${currentCaseId}/graph`);
+    // Update graph with historical facts directly from backend replay
+    const gRes = await fetch(`/cases/${currentCaseId}/graph?at=${seq}`);
     if (gRes.ok) {
       const graph = await gRes.json();
-      const histFids = new Set(Object.keys(state.facts || {}));
-      const filteredNodes = (graph.nodes || [])
-        .filter((n) => histFids.has(n.fact_id || n.id))
-        .map((n) => {
-          const fid = n.fact_id || n.id;
-          const histFact = state.facts ? state.facts[fid] : null;
-          return {
-            ...n,
-            id: fid,
-            fact_id: fid,
-            own_trust: histFact ? histFact.own_trust : n.own_trust,
-            effective_trust: histFact ? histFact.effective_trust : n.effective_trust,
-            status: histFact ? histFact.status : n.status,
-          };
-        });
-      const filteredEdges = (graph.edges || [])
-        .filter((e) => {
-          const src = e.from_fact_id || e.source;
-          const tgt = e.to_fact_id || e.target;
-          return histFids.has(src) && histFids.has(tgt);
-        })
-        .map((e) => ({
-          ...e,
-          source: e.from_fact_id || e.source,
-          target: e.to_fact_id || e.target,
-        }));
-      renderGraph({ nodes: filteredNodes, edges: filteredEdges }, document.getElementById("graph-panel"));
+      renderGraph(graph, document.getElementById("graph-panel"));
     }
   } catch (err) {
     console.error("Failed to load historical state:", err);
