@@ -20,19 +20,27 @@
 
 ## 1. Quick Start (Run the Demo in 60 Seconds)
 
-If you already have the repository cloned and the virtual environment installed, run these two commands in separate terminal tabs:
+You can run these directly from your workspace without worrying about shell differences:
 
 ### Terminal 1: Seed the Demo Incident Data
 ```bash
-source .venv/bin/activate
-python groundtruth/eval/demo_script.py --db groundtruth.db
+# Universal command (works in bash, zsh, and fish):
+.venv/bin/python groundtruth/eval/demo_script.py --db groundtruth.db
 ```
 
 ### Terminal 2: Start the Web Server & Dashboard
 ```bash
-source .venv/bin/activate
-PYTHONPATH=. uvicorn groundtruth.api.routes:app --host 127.0.0.1 --port 8000 --reload
+# Universal command (works in bash, zsh, and fish):
+PYTHONPATH=. .venv/bin/uvicorn groundtruth.api.routes:app --host 127.0.0.1 --port 8000 --reload
 ```
+
+> **Note for Fish Shell users (`fish`):**  
+> If you prefer activating your environment first, use:
+> ```fish
+> source .venv/bin/activate.fish
+> ```
+> *(In `bash` or `zsh`, use `source .venv/bin/activate`)*.  
+> Or simply invoke `.venv/bin/python` directly as shown above.
 
 Now open your web browser and navigate to:
 👉 **[http://127.0.0.1:8000/dashboard/](http://127.0.0.1:8000/dashboard/)**  
