@@ -1,0 +1,38 @@
+# Required checks per fixture before AUTO_FIX is permitted
+fixture_1_auth_refactor:
+  required_checks:
+    - log_anomaly
+    - commit_change
+    - negative_check
+  ground_truth_cause: "NullPointerException in TokenValidator due to unhandled None in auth refactor commit"
+  recommended_action: "AUTO_FIX"
+
+fixture_2_dep_version_mismatch:
+  required_checks:
+    - log_anomaly
+    - dependency_bump
+    - intel_match
+  ground_truth_cause: "Breaking API change introduced in urllib3 bump from 1.26 to 2.0"
+  recommended_action: "AUTO_FIX"
+
+fixture_3_oom_pod_crash:
+  required_checks:
+    - log_anomaly
+    - pod_status
+  ground_truth_cause: "Container OOMKilled exceeding memory limit of 512Mi during test suite execution"
+  recommended_action: "ESCALATE"
+
+fixture_4_config_syntax_error:
+  required_checks:
+    - log_anomaly
+    - commit_change
+  ground_truth_cause: "YAML syntax indentation error in kubernetes deployment manifest"
+  recommended_action: "AUTO_FIX"
+
+fixture_5_db_migration_deadlock:
+  required_checks:
+    - log_anomaly
+    - commit_change
+    - negative_check
+  ground_truth_cause: "Lock timeout on users table during alembic migration 0042_add_index"
+  recommended_action: "ESCALATE"

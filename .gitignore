@@ -1,0 +1,39 @@
+# Virtual Environment
+.venv/
+env/
+venv/
+
+# Environment Variables & Secrets (SEC-4)
+.env
+*.env
+!.env.example
+
+# Bytecode & Caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# SQLite & Data files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# Test coverage
+.coverage
+htmlcov/
+.coverage.*
+
+# Distribution / Packaging
+build/
+dist/
+*.egg-info/
+
+# OS / Editor files
+.DS_Store
+.idea/
+.vscode/

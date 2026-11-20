@@ -1,0 +1,18 @@
+{
+  "fixture_id": "fixture_1_auth_refactor",
+  "title": "Auth Service NullPointerException",
+  "pipeline_id": "pipe_auth_908",
+  "timestamp": "2026-11-19T10:00:00Z",
+  "build_log": "2026-11-19T09:58:12Z [INFO] Running test suite for auth-service...\n2026-11-19T09:58:14Z [ERROR] TestTokenValidation::test_expired_refresh_token FAILED\nTraceback (most recent call last):\n  File \"auth/tests/test_token.py\", line 45, in test_expired_refresh_token\n    validator.validate_payload(token_claims)\n  File \"auth/validator.py\", line 88, in validate_payload\n    if claims.get('user_id').startswith('usr_'):\nAttributeError: 'NoneType' object has no attribute 'startswith'\n2026-11-19T09:58:15Z [FAIL] 1 of 42 tests failed. Build exit code 1.",
+  "git_commit": {
+    "sha": "a1b2c3d4",
+    "author": "dev@company.com",
+    "summary": "refactor: simplify token claim extraction",
+    "diff_hunk": "--- a/auth/validator.py\n+++ b/auth/validator.py\n@@ -85,5 +85,2 @@\n-    if claims is None or 'user_id' not in claims:\n-        raise InvalidTokenError('Missing user_id')\n-    user_id = claims['user_id']\n+    user_id = claims.get('user_id')\n     if user_id.startswith('usr_'):"
+  },
+  "k8s_events": {
+    "checked_pods": ["auth-test-pod-01", "auth-test-pod-02", "auth-test-pod-03", "auth-test-pod-04", "auth-test-pod-05", "auth-test-pod-06", "auth-test-pod-07", "auth-test-pod-08", "auth-test-pod-09", "auth-test-pod-10", "auth-test-pod-11", "auth-test-pod-12"],
+    "oom_killed_found": false
+  },
+  "ground_truth_cause": "NullPointerException in TokenValidator due to unhandled None in auth refactor commit"
+}

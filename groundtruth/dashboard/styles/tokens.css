@@ -1,0 +1,52 @@
+/* GroundTruth Design Tokens (DES-1, DES-3, DES-9, DES-12) */
+:root {
+  /* Brand palette */
+  --gt-midnight: #030407;
+  --gt-cobalt: #1558C9;
+  --gt-lime: #D4FF24;
+
+  /* Neutrals */
+  --gt-surface-1: #0A0F1A;
+  --gt-surface-2: #0F1626;
+  --gt-line: #1B2438;
+  --gt-text: #F2F5FA;
+  --gt-text-muted: #8A94A8;
+  --gt-cobalt-soft: #5B8DEF;
+
+  /* Functional Status Colors (DES-3: Reserved exclusively for status) */
+  --gt-amber: #FFB020;
+  --gt-coral: #FF4D5E;
+
+  /* Shapes & Radii */
+  --gt-radius-card: 16px;
+  --gt-radius-panel: 20px;
+  --gt-radius-pill: 999px;
+
+  /* Spacing Scale (4px base) */
+  --gt-space-1: 4px;
+  --gt-space-2: 8px;
+  --gt-space-3: 12px;
+  --gt-space-4: 16px;
+  --gt-space-5: 20px;
+  --gt-space-6: 24px;
+  --gt-space-8: 32px;
+  --gt-space-12: 48px;
+
+  /* Glows */
+  --gt-glow-cobalt: 0 0 24px rgba(21, 88, 201, 0.4);
+  --gt-glow-lime: 0 0 16px rgba(212, 255, 36, 0.3);
+  --gt-glow-coral: 0 0 20px rgba(255, 77, 94, 0.4);
+
+  /* Typography Stacks */
+  --gt-font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --gt-font-serif: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --gt-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Transition timings */
+  --gt-transition-fast: 120ms ease;
+  --gt-transition-normal: 240ms ease;
+  --gt-transition-bar: 400ms ease;
+  --gt-transition-taint: 150ms ease;
+
+  color-scheme: dark;
+}

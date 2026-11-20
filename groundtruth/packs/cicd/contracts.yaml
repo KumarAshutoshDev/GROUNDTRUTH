@@ -1,0 +1,36 @@
+conclusion_type: cicd_root_cause
+
+roles:
+  log_agent:
+    reads:
+      - trigger
+      - pod_status
+    writes:
+      - log_anomaly
+      - pod_status
+      - negative_check
+    max_context_tokens: 4000
+    min_trust_threshold: 0.50
+
+  repo_agent:
+    reads:
+      - trigger
+      - log_anomaly
+      - pod_status
+      - dependency_bump
+      - intel_match
+    writes:
+      - commit_change
+      - dependency_bump
+      - cicd_root_cause
+    max_context_tokens: 6000
+    min_trust_threshold: 0.50
+
+  intel_agent:
+    reads:
+      - log_anomaly
+      - dependency_bump
+    writes:
+      - intel_match
+    max_context_tokens: 4000
+    min_trust_threshold: 0.50

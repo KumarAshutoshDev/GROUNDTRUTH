@@ -1,0 +1,18 @@
+{
+  "fixture_id": "fixture_5_db_migration_deadlock",
+  "title": "Database Migration Deadlock Timeout",
+  "pipeline_id": "pipe_mig_771",
+  "timestamp": "2026-11-19T11:00:00Z",
+  "build_log": "2026-11-19T10:58:30Z [INFO] Applying database migrations with Alembic...\n2026-11-19T10:58:31Z [INFO] Running upgrade 0041 -> 0042 (add_user_email_index)\n2026-11-19T10:59:31Z [ERROR] alembic.util.exc.CommandError: Lock wait timeout exceeded; try restarting transaction\n2026-11-19T10:59:32Z [FAIL] Migration failed.",
+  "git_commit": {
+    "sha": "e5f6a1b2",
+    "author": "dbadmin@company.com",
+    "summary": "migration: add email index on users table",
+    "diff_hunk": "--- a/migrations/0042_add_index.py\n+++ b/migrations/0042_add_index.py\n@@ -20,2 +20,2 @@\n-    # concurrent index creation\n-    op.create_index('ix_users_email', 'users', ['email'], postgresql_concurrently=True)\n+    op.create_index('ix_users_email', 'users', ['email'])"
+  },
+  "k8s_events": {
+    "checked_pods": ["postgres-primary-0"],
+    "oom_killed_found": false
+  },
+  "ground_truth_cause": "Lock timeout on users table during alembic migration 0042_add_index"
+}

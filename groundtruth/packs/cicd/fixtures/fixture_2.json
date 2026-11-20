@@ -1,0 +1,21 @@
+{
+  "fixture_id": "fixture_2_dep_version_mismatch",
+  "title": "Urllib3 ImportError in payment gateway",
+  "pipeline_id": "pipe_pay_104",
+  "timestamp": "2026-11-19T10:15:00Z",
+  "build_log": "2026-11-19T10:14:02Z [INFO] Installing project dependencies...\n2026-11-19T10:14:15Z [INFO] Running payment gateway integration tests...\n2026-11-19T10:14:16Z [ERROR] ImportError while loading test module '/app/tests/test_gateway.py'.\nImportError: cannot import name 'DEFAULT_CIPHERS' from 'urllib3.util.ssl_'\n2026-11-19T10:14:17Z [FAIL] Build failed with exit code 1.",
+  "git_commit": {
+    "sha": "b2c3d4e5",
+    "author": "ops@company.com",
+    "summary": "chore: bump dependencies for security patch",
+    "diff_hunk": "--- a/requirements.txt\n+++ b/requirements.txt\n@@ -12,2 +12,2 @@\n-urllib3==1.26.15\n+urllib3==2.0.7"
+  },
+  "intel_advisory": {
+    "advisory_id": "GHSA-urllib3-v2-breaking",
+    "package": "urllib3",
+    "severity": "MODERATE",
+    "affected_versions": ">=2.0.0",
+    "summary": "urllib3 v2.0 dropped deprecated ssl_ constants including DEFAULT_CIPHERS"
+  },
+  "ground_truth_cause": "Breaking API change introduced in urllib3 bump from 1.26 to 2.0"
+}

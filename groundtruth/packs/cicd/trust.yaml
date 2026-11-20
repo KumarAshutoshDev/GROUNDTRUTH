@@ -1,0 +1,24 @@
+# GroundTruth Trust Configuration for CI/CD Domain Pack
+BASE:
+  human_input: 0.95
+  tool_output: 0.90
+  document: 0.70
+  agent_inference: 0.60
+
+DOWNGRADE_CAP: 0.30
+T_cite: 0.50
+T_auto: 0.60
+decay_epsilon: 0.01
+
+half_lives:
+  pod_status: 900      # 15 minutes
+  log_anomaly: 21600   # 6 hours
+  commit_change: null
+  dependency_bump: null
+  intel_match: null
+  negative_check: null
+  cicd_root_cause: null
+
+budget:
+  max_tool_calls: 20
+  max_tokens: 100000

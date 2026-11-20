@@ -1,0 +1,16 @@
+{
+  "fixture_id": "fixture_3_oom_pod_crash",
+  "title": "Test Runner OOMKilled",
+  "pipeline_id": "pipe_oom_552",
+  "timestamp": "2026-11-19T10:30:00Z",
+  "build_log": "2026-11-19T10:28:10Z [INFO] Executing high-concurrency integration test run...\n2026-11-19T10:29:45Z [WARN] Pod runner-pod-07 memory usage: 508Mi / 512Mi (99.2%)\n2026-11-19T10:29:48Z [ERROR] Command terminated with signal 9 (SIGKILL) exit code 137\n2026-11-19T10:29:49Z [FATAL] Test runner pod unexpectedly exited.",
+  "pod_status": {
+    "pod_name": "runner-pod-07",
+    "namespace": "ci-runners",
+    "status": "OOMKilled",
+    "exit_code": 137,
+    "memory_limit": "512Mi",
+    "last_state": "Terminated (Reason: OOMKilled)"
+  },
+  "ground_truth_cause": "Container OOMKilled exceeding memory limit of 512Mi during test suite execution"
+}

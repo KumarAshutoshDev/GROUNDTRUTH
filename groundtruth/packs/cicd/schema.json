@@ -1,0 +1,78 @@
+{
+  "name": "cicd",
+  "version": "1.0.0",
+  "description": "CI/CD Pipeline Failure Diagnosis Domain Pack",
+  "fact_types": {
+    "log_anomaly": {
+      "description": "Anomalous error or stack trace in build/test logs",
+      "time_sensitive": false,
+      "properties": {
+        "message": {"type": "string"},
+        "level": {"type": "string"},
+        "component": {"type": "string"},
+        "stack_trace": {"type": "string"}
+      }
+    },
+    "pod_status": {
+      "description": "Status of a Kubernetes pod or container during the run",
+      "time_sensitive": true,
+      "properties": {
+        "pod_name": {"type": "string"},
+        "namespace": {"type": "string"},
+        "status": {"type": "string"},
+        "exit_code": {"type": "integer"}
+      }
+    },
+    "commit_change": {
+      "description": "Git commit metadata and modified code files",
+      "time_sensitive": false,
+      "properties": {
+        "sha": {"type": "string"},
+        "author": {"type": "string"},
+        "files_changed": {"type": "array", "items": {"type": "string"}},
+        "summary": {"type": "string"}
+      }
+    },
+    "dependency_bump": {
+      "description": "Modified package dependency or version bump in manifest",
+      "time_sensitive": false,
+      "properties": {
+        "package": {"type": "string"},
+        "old_version": {"type": "string"},
+        "new_version": {"type": "string"},
+        "manifest_path": {"type": "string"}
+      }
+    },
+    "intel_match": {
+      "description": "Threat, vulnerability, or upstream breaking change advisory match",
+      "time_sensitive": false,
+      "properties": {
+        "advisory_id": {"type": "string"},
+        "package": {"type": "string"},
+        "severity": {"type": "string"},
+        "affected_versions": {"type": "string"},
+        "url": {"type": "string"}
+      }
+    },
+    "negative_check": {
+      "description": "Ruled-out check with explicit scope and time window",
+      "time_sensitive": false,
+      "properties": {
+        "check_type": {"type": "string"},
+        "scope": {"type": "array", "items": {"type": "string"}},
+        "window_start": {"type": "string"},
+        "window_end": {"type": "string"},
+        "expires_at": {"type": "string"}
+      }
+    },
+    "cicd_root_cause": {
+      "description": "Final attributable conclusion determining failure cause",
+      "time_sensitive": false,
+      "properties": {
+        "root_cause": {"type": "string"},
+        "category": {"type": "string"},
+        "fix_recommendation": {"type": "string"}
+      }
+    }
+  }
+}
