@@ -238,7 +238,10 @@ export function renderGraph(graphData, container) {
       <defs>
         <!-- Cobalt Glow Filter (FR-7) -->
         <filter id="cobalt-glow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="rgba(21, 88, 201, 0.6)" />
+          <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="rgba(0, 210, 255, 0.65)" />
+        </filter>
+        <filter id="coral-glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="rgba(255, 42, 85, 0.65)" />
         </filter>
         <!-- Arrow markers -->
         <marker id="arrow-normal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
@@ -270,7 +273,7 @@ export function renderGraph(graphData, container) {
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <span style="font-weight: 700; color: var(--gt-text); font-size: 12px;">${n.type}</span>
             <span class="mono" style="color: var(--gt-text-muted); font-size: 10px;">${n.id}</span>
-            <span class="mono" style="color: var(--gt-lime); background: rgba(212,255,36,0.12); padding: 1px 6px; border-radius: 999px; font-weight: 700;">Trust: ${trustVal}</span>
+            <span class="mono" style="color: var(--gt-lime); background: rgba(0, 255, 136, 0.15); padding: 2px 8px; border-radius: 999px; font-weight: 700;">Trust: ${trustVal}</span>
             <span style="color: var(--gt-text); font-size: 11px;">${n.summary || ""}</span>
           </div>
           <button id="btn-highlight-fact" style="background: var(--gt-surface-1); border: 1px solid var(--gt-cobalt-soft); color: var(--gt-cobalt-soft); border-radius: 999px; padding: 3px 12px; font-size: 10px; cursor: pointer; font-weight: 600;">

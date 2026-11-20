@@ -19,8 +19,8 @@ export function createVerdictStreamPanel() {
           <h2>Gate Verdict Stream</h2>
           <span class="mono text-muted" id="verdict-count" style="font-size: 11px;">(0)</span>
         </div>
-        <span class="mono" style="font-size: 10px; color: var(--gt-lime); display: flex; align-items: center; gap: 5px;">
-          <span style="width: 6px; height: 6px; border-radius: 50%; background: var(--gt-lime); display: inline-block;"></span>
+        <span class="mono" style="font-size: 10px; color: var(--gt-lime); display: flex; align-items: center; gap: 6px; font-weight: 700;">
+          <span class="live-pulse-dot" style="width: 7px; height: 7px; border-radius: 50%; background: var(--gt-lime); display: inline-block;"></span>
           LIVE SSE
         </span>
       </div>

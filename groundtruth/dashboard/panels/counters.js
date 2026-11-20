@@ -16,7 +16,7 @@ export function createCountersPanel() {
       <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
         <div style="display: flex; align-items: center; gap: 8px;">
           <h2>Benchmark Counters</h2>
-          <span class="mono" style="font-size: 10px; color: var(--gt-lime); background: rgba(212, 255, 36, 0.12); padding: 2px 6px; border-radius: var(--gt-radius-pill);">
+          <span class="mono" style="font-size: 10px; color: var(--gt-lime); background: rgba(0, 255, 136, 0.15); padding: 2px 8px; border-radius: var(--gt-radius-pill); font-weight: 700;">
             MEASURED
           </span>
         </div>

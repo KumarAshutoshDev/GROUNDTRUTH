@@ -1,25 +1,25 @@
-/* GroundTruth Design Tokens (DES-1, DES-3, DES-9, DES-12) */
+/* GroundTruth Design Tokens (DES-1, DES-3, DES-9, DES-12) - Futuristic Cyber Edition */
 :root {
-  /* Brand palette */
-  --gt-midnight: #030407;
-  --gt-cobalt: #1558C9;
-  --gt-lime: #D4FF24;
+  /* Brand palette - Futuristic Quantum / Cybernetic Theme */
+  --gt-midnight: #030712;
+  --gt-cobalt: #0284c7;
+  --gt-lime: #00ff88;
 
-  /* Neutrals */
-  --gt-surface-1: #0A0F1A;
-  --gt-surface-2: #0F1626;
-  --gt-line: #1B2438;
-  --gt-text: #F2F5FA;
-  --gt-text-muted: #8A94A8;
-  --gt-cobalt-soft: #5B8DEF;
+  /* Neutrals - Deep Space Obsidian & Translucent Glass */
+  --gt-surface-1: #080f22;
+  --gt-surface-2: #0e172e;
+  --gt-line: #182645;
+  --gt-text: #f0f6fc;
+  --gt-text-muted: #7d8ba1;
+  --gt-cobalt-soft: #00d2ff;
 
   /* Functional Status Colors (DES-3: Reserved exclusively for status) */
-  --gt-amber: #FFB020;
-  --gt-coral: #FF4D5E;
+  --gt-amber: #ffb703;
+  --gt-coral: #ff2a55;
 
   /* Shapes & Radii */
-  --gt-radius-card: 16px;
-  --gt-radius-panel: 20px;
+  --gt-radius-card: 14px;
+  --gt-radius-panel: 18px;
   --gt-radius-pill: 999px;
 
   /* Spacing Scale (4px base) */
@@ -32,10 +32,11 @@
   --gt-space-8: 32px;
   --gt-space-12: 48px;
 
-  /* Glows */
-  --gt-glow-cobalt: 0 0 24px rgba(21, 88, 201, 0.4);
-  --gt-glow-lime: 0 0 16px rgba(212, 255, 36, 0.3);
-  --gt-glow-coral: 0 0 20px rgba(255, 77, 94, 0.4);
+  /* High-Tech Futuristic Glows */
+  --gt-glow-cobalt: 0 0 28px rgba(0, 210, 255, 0.45);
+  --gt-glow-lime: 0 0 24px rgba(0, 255, 136, 0.45);
+  --gt-glow-coral: 0 0 24px rgba(255, 42, 85, 0.45);
+  --gt-glow-amber: 0 0 20px rgba(255, 183, 3, 0.4);
 
   /* Typography Stacks */
   --gt-font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -43,10 +44,10 @@
   --gt-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   /* Transition timings */
-  --gt-transition-fast: 120ms ease;
-  --gt-transition-normal: 240ms ease;
-  --gt-transition-bar: 400ms ease;
-  --gt-transition-taint: 150ms ease;
+  --gt-transition-fast: 120ms cubic-bezier(0.16, 1, 0.3, 1);
+  --gt-transition-normal: 240ms cubic-bezier(0.16, 1, 0.3, 1);
+  --gt-transition-bar: 400ms cubic-bezier(0.16, 1, 0.3, 1);
+  --gt-transition-taint: 150ms cubic-bezier(0.16, 1, 0.3, 1);
 
   color-scheme: dark;
 }
