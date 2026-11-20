@@ -9,12 +9,15 @@ Enforces:
 """
 
 import json
+import logging
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -115,16 +118,52 @@ class MockFixtureLLMAdapter(LLMAdapter):
 
 
 class ProviderLLMAdapter(LLMAdapter):
-    """Real provider LLM adapter calling external model endpoints."""
+    """Real provider LLM adapter calling external model endpoints (Groq, OpenAI, Gemini)."""
 
-    def __init__(self, model: str | None = None, api_key: str | None = None) -> None:
-        self.model = model or os.environ.get("VERIFIER_MODEL", "gemini-2.0-flash")
-        self.api_key = (
-            api_key or os.environ.get("GEMINI_API_KEY") or os.environ.get("OPENAI_API_KEY")
-        )
+    def __init__(
+        self,
+        model: str | None = None,
+        api_key: str | None = None,
+        base_url: str | None = None,
+    ) -> None:
+        groq_key = os.environ.get("GROQ_API_KEY")
+        openai_key = os.environ.get("OPENAI_API_KEY")
+        gemini_key = os.environ.get("GEMINI_API_KEY")
 
-    def complete(self, prompt: str, timeout: float = 8.0) -> LLMResult:
-        if not self.api_key:
+        self.api_key: str | None = None
+        self.base_url: str | None = None
+        self.model: str = model or "mock-fixture-model"
+
+        if api_key:
+            self.api_key = api_key
+            self.base_url = base_url or os.environ.get(
+                "LLM_BASE_URL", "https://api.openai.com/v1/chat/completions"
+            )
+            self.model = model or os.environ.get("VERIFIER_MODEL", "gpt-4o-mini")
+        elif groq_key:
+            self.api_key = groq_key
+            self.base_url = base_url or os.environ.get(
+                "LLM_BASE_URL", "https://api.groq.com/openai/v1/chat/completions"
+            )
+            self.model = model or os.environ.get(
+                "VERIFIER_MODEL", "llama-3.3-70b-versatile"
+            )
+        elif openai_key:
+            self.api_key = openai_key
+            self.base_url = base_url or os.environ.get(
+                "LLM_BASE_URL", "https://api.openai.com/v1/chat/completions"
+            )
+            self.model = model or os.environ.get("VERIFIER_MODEL", "gpt-4o-mini")
+        elif gemini_key:
+            self.api_key = gemini_key
+            self.base_url = base_url or os.environ.get(
+                "LLM_BASE_URL",
+                "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+            )
+            self.model = model or os.environ.get("VERIFIER_MODEL", "gemini-2.0-flash")
+
+    def complete(self, prompt: str, timeout: float = 12.0) -> LLMResult:
+        if not self.api_key or not self.base_url:
             # Fall back to Mock adapter if no credentials configured
             mock = MockFixtureLLMAdapter()
             return mock.complete(prompt, timeout)
@@ -147,7 +186,7 @@ class ProviderLLMAdapter(LLMAdapter):
         try:
             with httpx.Client(timeout=timeout) as client:
                 resp = client.post(
-                    "https://api.openai.com/v1/chat/completions",
+                    self.base_url,
                     headers=headers,
                     json=payload,
                 )
@@ -155,13 +194,26 @@ class ProviderLLMAdapter(LLMAdapter):
                 data = resp.json()
                 choice = data["choices"][0]["message"]["content"]
                 usage = data.get("usage", {})
+                tokens_in = usage.get("prompt_tokens")
+                if tokens_in is None:
+                    tokens_in = len(prompt.split())
+                tokens_out = usage.get("completion_tokens")
+                if tokens_out is None:
+                    tokens_out = len(choice.split())
                 return LLMResult(
                     text=choice,
-                    tokens_in=usage.get("prompt_tokens", len(prompt.split())),
-                    tokens_out=usage.get("completion_tokens", len(choice.split())),
+                    tokens_in=tokens_in,
+                    tokens_out=tokens_out,
                     model=self.model,
                     is_estimate=False,
                 )
-        except Exception:
-            # Fall back to mock on offline/error
+        except Exception as exc:
+            logger.warning("Provider LLM call failed (%s); falling back to mock adapter", exc)
             return MockFixtureLLMAdapter().complete(prompt, timeout)
+
+
+def get_default_adapter() -> LLMAdapter:
+    """Return ProviderLLMAdapter if any API key is configured, else MockFixtureLLMAdapter."""
+    if any(k in os.environ for k in ("GROQ_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY")):
+        return ProviderLLMAdapter()
+    return MockFixtureLLMAdapter()

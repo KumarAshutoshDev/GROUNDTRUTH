@@ -22,7 +22,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from groundtruth.adapters.llm import MockFixtureLLMAdapter
+from groundtruth.adapters.llm import LLMAdapter, get_default_adapter
 from groundtruth.core.utils import canonical_json
 
 FIXTURES_DIR = Path("groundtruth/packs/cicd/fixtures")
@@ -147,11 +147,11 @@ def load_fixtures() -> list[dict[str, Any]]:
 def run_baseline_fixture(
     fixture: dict[str, Any],
     run_index: int = 1,
-    adapter: MockFixtureLLMAdapter | None = None,
+    adapter: LLMAdapter | None = None,
 ) -> dict[str, Any]:
     """Execute ungoverned multi-agent run on single fixture using Vector RAG (FIX-5)."""
     fid = fixture.get("fixture_id", fixture.get("title", "fixture"))
-    llm = adapter or MockFixtureLLMAdapter()
+    llm = adapter or get_default_adapter()
 
     # 1. Populate Vector RAG index over chunked logs, diffs, and manifests
     rag = SimpleVectorRAG(chunk_size=40, chunk_overlap=12)
@@ -335,19 +335,22 @@ def run_baseline_fixture(
     }
 
 
-def run_all_baselines(runs_per_fixture: int = 3) -> dict[str, Any]:
+def run_all_baselines(
+    runs_per_fixture: int = 3,
+    adapter: LLMAdapter | None = None,
+) -> dict[str, Any]:
     """Run baseline across all 5 benchmark fixtures for N = 5 * runs_per_fixture (N = 15)."""
     fixtures = load_fixtures()
     runs: list[dict[str, Any]] = []
     fixtures_summary: dict[str, dict[str, Any]] = {}
 
-    adapter = MockFixtureLLMAdapter()
+    active_adapter = adapter or get_default_adapter()
 
     for fix in fixtures:
         fid = fix.get("fixture_id", fix.get("title", "fixture"))
         fix_runs: list[dict[str, Any]] = []
         for r in range(1, runs_per_fixture + 1):
-            res = run_baseline_fixture(fix, run_index=r, adapter=adapter)
+            res = run_baseline_fixture(fix, run_index=r, adapter=active_adapter)
             runs.append(res)
             fix_runs.append(res)
 

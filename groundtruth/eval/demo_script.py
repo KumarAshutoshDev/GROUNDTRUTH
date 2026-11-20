@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import time
 from typing import Any
 
@@ -59,6 +60,18 @@ class DemoRunner:
         print("  Workflow: CI/CD Failure Diagnosis (PRD Section 11, Beats 1 - 8)")
         mode_str = "OFFLINE (Mock/Recorded Fixture)" if self.offline else "LIVE LLM"
         print(f"  Mode: {mode_str} (FIX-2, FIX-3)")
+        if not self.offline:
+            from groundtruth.adapters.llm import ProviderLLMAdapter
+            from groundtruth.api import negative, propose
+            prov = ProviderLLMAdapter()
+            propose._default_verifier_adapter = prov
+            negative._default_verifier_adapter = prov
+            print(f"  Provider Model: {prov.model} ({prov.base_url})")
+        else:
+            from groundtruth.adapters.llm import MockFixtureLLMAdapter
+            from groundtruth.api import negative, propose
+            propose._default_verifier_adapter = MockFixtureLLMAdapter()
+            negative._default_verifier_adapter = MockFixtureLLMAdapter()
         print("=" * 80)
 
         fixtures = load_fixtures()
@@ -281,7 +294,16 @@ class DemoRunner:
 def main() -> None:
     parser = argparse.ArgumentParser(description="GroundTruth 4-Minute Demo Script Automation")
     parser.add_argument(
-        "--offline", action="store_true", default=True, help="Run in offline mock mode (FIX-3)"
+        "--live",
+        action="store_true",
+        default=False,
+        help="Run live with real LLM provider (Groq, OpenAI, or Gemini)",
+    )
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        default=False,
+        help="Force offline mock mode (FIX-3)",
     )
     parser.add_argument(
         "--speed",
@@ -297,8 +319,20 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    # Determine execution mode:
+    # Explicit --live -> False (live)
+    # Explicit --offline -> True (offline)
+    # Neither -> auto-detect based on presence of API keys
+    if args.live:
+        is_offline = False
+    elif args.offline:
+        is_offline = True
+    else:
+        has_key = any(k in os.environ for k in ("GROQ_API_KEY", "OPENAI_API_KEY", "GEMINI_API_KEY"))
+        is_offline = not has_key
+
     runner = DemoRunner(
-        offline=args.offline,
+        offline=is_offline,
         delay_seconds=args.speed,
         db_path=args.db,
     )

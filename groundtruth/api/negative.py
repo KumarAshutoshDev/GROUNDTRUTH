@@ -14,7 +14,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
-from groundtruth.adapters.llm import LLMAdapter, MockFixtureLLMAdapter
+from groundtruth.adapters.llm import LLMAdapter, get_default_adapter
 from groundtruth.api.auth import resolve_caller
 from groundtruth.api.cases import get_db
 from groundtruth.core.budget import calculate_budget_usage
@@ -26,12 +26,15 @@ from groundtruth.core.projector import load_case_projection
 
 router = APIRouter(prefix="/cases", tags=["negative"])
 
-_default_verifier_adapter: LLMAdapter = MockFixtureLLMAdapter()
+_default_verifier_adapter: LLMAdapter | None = None
 
 
 def get_verifier_adapter() -> LLMAdapter:
     """Dependency provider for the LLM adapter used by verifier."""
-    return _default_verifier_adapter
+    global _default_verifier_adapter
+    if _default_verifier_adapter is not None:
+        return _default_verifier_adapter
+    return get_default_adapter()
 
 
 class NegativeQueryRequest(BaseModel):
